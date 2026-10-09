@@ -14,6 +14,7 @@ function generateCode(prefix: string): string {
 
 // Volunteer fast camp intake
 router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   try {
     const {
       fullName,
@@ -114,7 +115,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       shelterEntry,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.status(500).json({ success: false, error: err?.message || 'Internal server error processing intake' });
   }
 });
 
