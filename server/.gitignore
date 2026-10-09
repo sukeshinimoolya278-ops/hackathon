@@ -1,0 +1,26 @@
+# Backend Environment & Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Build Output
+dist/
+
+# SQLite Database Files
+prisma/*.db
+prisma/*.db-journal
+*.sqlite
+*.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db

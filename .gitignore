@@ -1,0 +1,70 @@
+# ==========================================
+# ReunitePath Monorepo - Git Ignore Configuration
+# ==========================================
+
+# 1. Dependency Directories
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# 2. Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+server/.env.local
+client/.env
+client/.env.local
+*.pem
+*.key
+*.cert
+
+# Do NOT ignore environment template examples
+!.env.example
+!server/.env.example
+!client/.env.example
+
+# 3. Production & Build Outputs
+dist/
+*/dist/
+build/
+*/build/
+out/
+.next/
+tsconfig.tsbuildinfo
+*/tsconfig.tsbuildinfo
+
+# 4. Local SQLite Databases & Prisma Artifacts
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+server/prisma/*.db
+server/prisma/*.db-journal
+
+# 5. Logs & Temporary Debug Files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 6. Operating System & Editor Files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 7. Coverage & Testing Artifacts
+coverage/
+.nyc_output/
+*.lcov
