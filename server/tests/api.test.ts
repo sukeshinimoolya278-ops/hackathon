@@ -72,4 +72,48 @@ describe('GlobalX Core API Endpoints Verification', () => {
     expect(arjunCase.missingReport.personName).toBe('Arjun Kumar');
     expect(arjunCase.candidateRecord.personName).toBe('Arjun Kumra');
   });
+
+  it('GET /api/dashboard/system-health returns measured server & surge metrics', async () => {
+    const res = await fetch(`${baseUrl}/dashboard/system-health`);
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.server.status).toBe('ONLINE');
+    expect(data.server.uptimeSeconds).toBeGreaterThanOrEqual(0);
+    expect(data.database.status).toBe('HEALTHY');
+    expect(data.database.responseTimeMs).toBeGreaterThanOrEqual(0);
+    expect(data.database.persistedRecordsCount.disasters).toBeGreaterThanOrEqual(1);
+    expect(data.apiTelemetry.totalRequests).toBeGreaterThanOrEqual(1);
+    expect(data.surgeProtection.idempotentRatePercent).toBeGreaterThanOrEqual(0);
+    expect(data.offlineSync).toBeDefined();
+  });
+
+  it('POST /api/safe-checkin handles surge deduplication reliably', async () => {
+    const checkInPayload = {
+      fullName: 'Surge Test Survivor',
+      phone: '+91 99999 88888',
+      currentLocation: 'Emergency Relief Transit Point',
+      message: 'Checking in during disaster surge test',
+    };
+
+    // First submission
+    const res1 = await fetch(`${baseUrl}/safe-checkin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checkInPayload),
+    });
+    const data1 = await res1.json();
+    expect(res1.status === 200 || res1.status === 201).toBe(true);
+    expect(data1.success).toBe(true);
+
+    // Second rapid submission (surge duplicate prevention)
+    const res2 = await fetch(`${baseUrl}/safe-checkin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checkInPayload),
+    });
+    const data2 = await res2.json();
+    expect(res2.status).toBe(200);
+    expect(data2.success).toBe(true);
+    expect(data2.isDuplicatePrevented).toBe(true);
+  });
 });

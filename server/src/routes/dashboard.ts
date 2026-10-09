@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
+import { surgeTelemetryService } from '../services/surgeTelemetryService';
 
 const router = Router();
 
@@ -122,6 +123,16 @@ router.get('/stats', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Real-time System Health & Disaster Surge Telemetry (No fabricated metrics)
+router.get('/system-health', async (req: Request, res: Response) => {
+  try {
+    const health = await surgeTelemetryService.getHealthMetrics();
+    res.json(health);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Error fetching system health metrics' });
   }
 });
 

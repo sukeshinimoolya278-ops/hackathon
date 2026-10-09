@@ -20,6 +20,7 @@ import qrRoutes from './routes/qr';
 import alertRoutes from './routes/alerts';
 import reunionIntelligenceRoutes from './routes/reunionIntelligence';
 import { NotificationService } from './services/notificationService';
+import { surgeTelemetryService } from './services/surgeTelemetryService';
 
 const app = express();
 const server = http.createServer(app);
@@ -42,6 +43,8 @@ io.on('connection', socket => {
 
 app.use(cors());
 app.use(express.json());
+app.use(surgeTelemetryService.telemetryMiddleware());
+app.use(surgeTelemetryService.surgeRateLimiter(200));
 
 // API Routes
 app.use('/api/auth', authRoutes);

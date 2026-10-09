@@ -329,3 +329,56 @@ export interface WeatherOverviewData {
   audioPodcastScript?: string;
 }
 
+export interface SystemHealthMetrics {
+  server: {
+    status: 'ONLINE' | 'DEGRADED';
+    uptimeSeconds: number;
+    memoryHeapUsedMb: number;
+    memoryRssMb: number;
+    nodeVersion: string;
+    environment: string;
+  };
+  database: {
+    status: 'HEALTHY' | 'DEGRADED' | 'DISCONNECTED';
+    responseTimeMs: number;
+    persistedRecordsCount: {
+      disasters: number;
+      camps: number;
+      missingReports: number;
+      shelterEntries: number;
+      safeCheckIns: number;
+      leads: number;
+    };
+  };
+  apiTelemetry: {
+    totalRequests: number;
+    successRequests: number;
+    clientErrors: number;
+    serverErrors: number;
+    averageResponseTimeMs: number;
+    p95ResponseTimeMs: number;
+  };
+  surgeProtection: {
+    checkInsProcessed: number;
+    duplicatesPrevented: number;
+    failedCheckIns: number;
+    idempotentRatePercent: number;
+  };
+  backgroundQueues: {
+    matchingJobsTotal: number;
+    matchingJobsPending: number;
+    matchingJobsCompleted: number;
+    matchingJobsFailed: number;
+    notificationsDispatched: number;
+    notificationsPending: number;
+    notificationsFailed: number;
+    retriesHandled: number;
+  };
+  offlineSync: {
+    sosPacketsReceived: number;
+    sosDuplicatesDeduplicated: number;
+    pendingOfflinePackets: number;
+    lastMeshSyncTimestamp: string | null;
+  };
+}
+

@@ -21,12 +21,17 @@ export const SafeCheckInPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
+    isDuplicatePrevented?: boolean;
+    isOfflinePending?: boolean;
+    message?: string;
+    checkIn?: any;
     notifiedFamiliesCount: number;
     notifiedFamilies: any[];
   } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return; // Prevent double clicks
     if (!formData.fullName || !formData.phone) {
       alert('Please enter your full name and contact phone number.');
       return;
@@ -53,15 +58,50 @@ export const SafeCheckInPage: React.FC = () => {
 
       {result ? (
         <div className="card-clean border-2 border-emerald-500 space-y-6 animate-in fade-in duration-200">
-          <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7" />
+          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">
+                  {result.isDuplicatePrevented
+                    ? 'Check-In Confirmed & Synchronized'
+                    : 'Check-In Broadcast Successful!'}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  {result.isOfflinePending
+                    ? 'Locally encrypted & queued — will sync automatically when central connection restores'
+                    : 'Your status is securely registered in the central relief registry'}
+                </p>
+              </div>
             </div>
+
+            {/* Central Persistence vs Offline Pending Badge */}
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Check-In Broadcast Successful!</h2>
-              <p className="text-xs text-slate-500">Your status is now registered as SAFE in the relief registry</p>
+              {result.isOfflinePending ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  Queued for Surge Sync
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  Persisted to Central Registry
+                </span>
+              )}
             </div>
           </div>
+
+          {/* Surge duplicate suppression notice */}
+          {result.isDuplicatePrevented && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-start gap-2">
+              <span className="font-bold">⚡ Surge Protection:</span>
+              <span>
+                Duplicate submission was suppressed. Your record was confirmed and refreshed without creating multiple fragmented entries.
+              </span>
+            </div>
+          )}
 
           <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2 text-xs text-emerald-950">
             <span className="font-bold text-sm block">
@@ -70,7 +110,7 @@ export const SafeCheckInPage: React.FC = () => {
                 : 'Checked in safely! Any matching missing reports registered by your family will be automatically upgraded to VERIFIED SAFE.'}
             </span>
 
-            {result.notifiedFamilies.length > 0 && (
+            {result.notifiedFamilies && result.notifiedFamilies.length > 0 && (
               <ul className="list-disc list-inside space-y-1 pt-1 text-slate-700">
                 {result.notifiedFamilies.map((fam, i) => (
                   <li key={i}>
@@ -81,9 +121,25 @@ export const SafeCheckInPage: React.FC = () => {
             )}
           </div>
 
-          <Link to="/" className="btn-primary w-full text-center">
-            <span>Back to Home</span>
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setResult(null);
+                setFormData({
+                  fullName: '',
+                  phone: '',
+                  currentLocation: '',
+                  message: 'I am safe and uninjured at a rescue point.',
+                });
+              }}
+              className="btn-secondary flex-1 py-3 text-center text-sm font-semibold"
+            >
+              Check-in Another Person
+            </button>
+            <Link to="/" className="btn-primary flex-1 py-3 text-center text-sm font-semibold">
+              <span>Back to Home</span>
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="card-clean space-y-6">
