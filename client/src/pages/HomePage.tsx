@@ -83,52 +83,51 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
               <h1 className="font-display text-4xl sm:text-6xl font-black text-slate-950 tracking-tight leading-[1.08] uppercase">
                 REUNITE FAMILIES.{' '}
                 <span className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-500 bg-clip-text text-transparent block sm:inline">
-                  SHAPE IMPACT.
+                  BRING THEM HOME.
                 </span>
               </h1>
               <p className="text-base sm:text-lg text-slate-600 mt-3 max-w-xl font-normal leading-relaxed">
-                India's next-generation disaster family reunification network. Instant bi-directional cross-matching, CAP early warnings, and offline mesh evacuation.
+                India's rapid disaster family reunification network. Instant bi-directional cross-matching across shelter intake rosters, eyewitness sightings, and verified relief camps.
               </p>
             </div>
 
             {/* Row of 4 Colorful Squircle Tool Badges (From Reference Photo) */}
             <div className="flex items-center gap-3 pt-1">
-              {/* Tool 1: Violet Pen/Vector Tool Badge */}
+              {/* Tool 1: Violet Search Badge */}
               <Link
-                to="/camps"
-                title="Geographic Telemetry & Relocation Map"
+                to="/search"
+                title="Find Missing Loved Ones"
                 className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center shadow-3d-badge hover:scale-110 hover:-translate-y-1 transition-all duration-300"
               >
-                <PenTool className="w-5 h-5" />
+                <Search className="w-5 h-5" />
               </Link>
 
-              {/* Tool 2: Pink Typography / Missing Report Tool Badge */}
+              {/* Tool 2: Pink Missing Report Badge */}
               <Link
                 to="/report-missing"
                 title="Report Missing Family Member"
                 className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white flex items-center justify-center shadow-3d-badge-pink hover:scale-110 hover:-translate-y-1 transition-all duration-300"
               >
-                <Type className="w-5 h-5" />
+                <UserX className="w-5 h-5" />
               </Link>
 
-              {/* Tool 3: Coral / Peach Layers Tool Badge */}
+              {/* Tool 3: Coral Relief Camps Badge */}
               <Link
                 to="/camps"
-                title="Shelter Rosters & Logistics"
+                title="Relief Camps & Roster Directory"
                 className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-orange-400 to-rose-400 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 hover:scale-110 hover:-translate-y-1 transition-all duration-300"
               >
-                <Layers className="w-5 h-5" />
+                <MapPin className="w-5 h-5" />
               </Link>
 
-              {/* Tool 4: Sky Blue Cursor / DLE Mesh Tool Badge */}
-              <button
-                type="button"
-                onClick={onOpenMeshControl}
-                title="DLE Offline Mesh Navigation Cursor"
-                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-sky-500/20 hover:scale-110 hover:-translate-y-1 transition-all duration-300"
+              {/* Tool 4: Emerald I Am Safe Badge */}
+              <Link
+                to="/safe-checkin"
+                title="One-Tap 'I Am Safe' Check-in"
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:scale-110 hover:-translate-y-1 transition-all duration-300"
               >
-                <MousePointer className="w-5 h-5" />
-              </button>
+                <HeartHandshake className="w-5 h-5" />
+              </Link>
             </div>
 
             {/* Circular Dial Widget + Search Bar (Matching Reference Layout) */}
@@ -138,20 +137,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                 <div className="relative w-16 h-16 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-pink-500 border-r-fuchsia-500 border-b-violet-600 animate-spin-slow" />
                   <div className="text-center">
-                    <Calendar className="w-3.5 h-3.5 text-pink-500 mx-auto" />
-                    <span className="font-display font-black text-sm text-slate-900 block leading-tight">
-                      24/7
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto" />
+                    <span className="font-display font-black text-xs text-slate-900 block leading-tight">
+                      1,280+
                     </span>
                   </div>
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-                    NETWORK STATUS
+                    REUNIFICATION NETWORK
                   </span>
                   <strong className="text-xs font-black text-violet-950 block">
-                    100% VERIFIED
+                    1,280+ REUNITED
                   </strong>
-                  <span className="text-[10px] text-pink-600 font-bold block">
+                  <span className="text-[10px] text-emerald-600 font-bold block flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Zero False Rumors
                   </span>
                 </div>
@@ -165,15 +165,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Search person name, phone, or token..."
+                    placeholder="Search missing person's name, phone, age, or camp..."
                     className="w-full pl-10 pr-3 py-3 bg-white border border-violet-200/90 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 shadow-clay-sm placeholder:text-slate-400"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-clay hover:shadow-glow-violet active:scale-[0.98] transition-all"
+                  className="px-5 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-clay hover:shadow-glow-violet active:scale-[0.98] transition-all flex items-center gap-1.5 shrink-0"
                 >
-                  Search
+                  <span>Search</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </form>
             </div>
@@ -190,80 +191,102 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-violet-500 to-pink-500 text-white flex items-center justify-center text-[10px] font-black mb-1">
                     GX
                   </div>
-                  <button type="button" className="p-1.5 rounded-lg bg-violet-600 text-white">
-                    <Radio className="w-3.5 h-3.5" />
-                  </button>
-                  <button type="button" className="p-1.5 rounded-lg hover:text-white">
+                  <Link to="/search" title="Search Index" className="p-1.5 rounded-lg bg-violet-600 text-white">
+                    <Search className="w-3.5 h-3.5" />
+                  </Link>
+                  <Link to="/camps" title="Relief Camps" className="p-1.5 rounded-lg hover:text-white">
                     <MapPin className="w-3.5 h-3.5" />
-                  </button>
-                  <button type="button" className="p-1.5 rounded-lg hover:text-white">
-                    <Activity className="w-3.5 h-3.5" />
-                  </button>
-                  <button type="button" className="p-1.5 rounded-lg hover:text-white mt-auto">
-                    <Sliders className="w-3.5 h-3.5" />
-                  </button>
+                  </Link>
+                  <Link to="/safe-checkin" title="Safe Check-in" className="p-1.5 rounded-lg hover:text-white">
+                    <HeartHandshake className="w-3.5 h-3.5" />
+                  </Link>
+                  <Link to="/report-missing" title="Report Missing" className="p-1.5 rounded-lg hover:text-white mt-auto">
+                    <UserX className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
 
                 {/* Main Mockup Canvas Area */}
                 <div className="flex-1 p-3.5 space-y-3">
-                  {/* Mock Search Bar */}
+                  {/* Mock Search Bar with Verified Match Status */}
                   <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200/90 flex items-center justify-between text-[11px] text-slate-400 shadow-2xs">
                     <span className="flex items-center gap-1.5">
                       <Search className="w-3 h-3 text-violet-500" />
-                      <span className="text-slate-600 font-medium">GlobalX Incident Command</span>
+                      <span className="text-slate-700 font-semibold truncate max-w-[170px]">
+                        "Aarav Sharma" (Age 9)
+                      </span>
                     </span>
-                    <span className="text-[9px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
-                      LIVE
+                    <span className="text-[9px] font-black bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                      MATCH FOUND
                     </span>
                   </div>
 
-                  {/* Active Disaster Preview Card with Gradient Button */}
-                  <div className="bg-gradient-to-br from-violet-50 to-indigo-50/80 p-3 rounded-2xl border border-violet-200/80 space-y-2">
+                  {/* Active Verified Reunification Card */}
+                  <div className="bg-gradient-to-br from-emerald-50 via-teal-50/50 to-violet-50/60 p-3 rounded-2xl border border-emerald-200/90 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <strong className="font-bold text-slate-900 truncate">
-                        {activeDisaster?.name || 'Active Disaster Sector'}
-                      </strong>
-                      <span className="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-                        RED ALERT
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-pink-500 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                          AS
+                        </div>
+                        <div>
+                          <strong className="font-extrabold text-slate-900 block leading-tight">
+                            Aarav Sharma (9)
+                          </strong>
+                          <span className="text-[10px] text-emerald-700 font-semibold">
+                            Matched with Parent Sunil Sharma
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
+                        SAFE IN CAMP
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-600">
-                      Sector: <strong>{activeDisaster?.location || 'National Sector'}</strong> &bull; {camps.length} camps operational
-                    </p>
+
+                    <div className="bg-white/80 p-2 rounded-xl border border-emerald-100 text-[10px] text-slate-600 space-y-0.5">
+                      <p className="font-semibold text-slate-800 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-emerald-600" />
+                        Chooralmala Govt School Camp &bull; Bed #42
+                      </p>
+                      <p className="text-slate-500">
+                        Nodal Officer: <span className="font-bold text-slate-700">Insp. Rajesh K. (+91 94471 23456)</span>
+                      </p>
+                    </div>
+
                     <div className="flex items-center justify-between pt-1">
                       <Link
                         to="/camps"
-                        className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-pink-500 text-white rounded-xl text-[11px] font-black shadow-md flex items-center gap-1"
+                        className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-[11px] font-black shadow-md flex items-center gap-1 hover:brightness-105 transition-all"
                       >
-                        <span>Open Radar Map</span>
+                        <span>View Camp Roster</span>
                         <ArrowRight className="w-3 h-3" />
                       </Link>
-                      <span className="font-mono text-[10px] text-violet-900 font-bold">
-                        📍 {activeDisaster ? `${activeDisaster.latitude.toFixed(2)}°, ${activeDisaster.longitude.toFixed(2)}°` : '20.59°, 78.96°'}
+                      <span className="font-mono text-[10px] text-emerald-800 font-bold bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                        ID: #CR-88219
                       </span>
                     </div>
                   </div>
 
-                  {/* Neumorphic Feature Chips (Matching Aa, Box, Gradient Circle from Photo) */}
+                  {/* Neumorphic Feature Chips */}
                   <div className="grid grid-cols-3 gap-2 text-center text-xs">
                     <div className="bg-white p-2 rounded-xl border border-slate-200 flex flex-col items-center justify-center shadow-2xs">
-                      <span className="font-display font-black text-sm text-violet-700">Aa</span>
-                      <span className="text-[9px] text-slate-400 font-semibold">Fuzzy Match</span>
+                      <span className="font-display font-black text-sm text-violet-700">98%</span>
+                      <span className="text-[9px] text-slate-500 font-semibold">Fuzzy Match</span>
                     </div>
                     <div className="bg-white p-2 rounded-xl border border-slate-200 flex flex-col items-center justify-center shadow-2xs">
                       <ShieldCheck className="w-4 h-4 text-emerald-600 my-0.5" />
-                      <span className="text-[9px] text-slate-400 font-semibold">Rumor Shield</span>
+                      <span className="text-[9px] text-slate-500 font-semibold">Nodal Signed</span>
                     </div>
                     <div className="bg-white p-2 rounded-xl border border-slate-200 flex flex-col items-center justify-center shadow-2xs">
-                      <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-cyan-400 my-0.5" />
-                      <span className="text-[9px] text-slate-400 font-semibold">DLE Mesh</span>
+                      <Heart className="w-4 h-4 fill-pink-500 text-pink-500 my-0.5" />
+                      <span className="text-[9px] text-slate-500 font-semibold">Family Alerted</span>
                     </div>
                   </div>
 
-                  {/* Neumorphic Toggle Switch (From Reference Image) */}
+                  {/* Neumorphic Toggle Switch */}
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-700 text-[11px]">
-                      Offline Beacon Routing
+                    <span className="font-bold text-slate-700 text-[11px] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      Automated Family SMS Alert
                     </span>
                     <button
                       type="button"
@@ -278,80 +301,84 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                 </div>
               </div>
 
-              {/* FOREGROUND 3D CLAYMORPHIC BADGES (MATCHING UI, UX, HEART IN PHOTO) */}
+              {/* FOREGROUND 3D CLAYMORPHIC BADGES */}
               {/* Badge 1: 3D Violet "GX" Squircle Badge */}
               <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-700 to-indigo-500 text-white font-display font-black text-xl flex items-center justify-center shadow-3d-badge transform -rotate-6 hover:rotate-0 transition-transform duration-300 cursor-pointer">
                 GX
               </div>
 
-              {/* Badge 2: 3D Pink "DLE" Squircle Badge */}
-              <div className="absolute -bottom-4 left-16 w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white font-display font-black text-xl flex items-center justify-center shadow-3d-badge-pink transform rotate-3 hover:rotate-0 transition-transform duration-300 cursor-pointer">
-                DLE
+              {/* Badge 2: 3D Pink "MATCH" Squircle Badge */}
+              <div className="absolute -bottom-4 left-16 w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white font-display font-black text-xs tracking-wider flex items-center justify-center shadow-3d-badge-pink transform rotate-3 hover:rotate-0 transition-transform duration-300 cursor-pointer">
+                MATCH
               </div>
 
               {/* Badge 3: 3D White Squircle with Pink Heart */}
               <div className="absolute -bottom-3 right-6 px-3 py-2 rounded-2xl bg-white border border-pink-100 text-pink-600 font-bold text-xs flex items-center gap-1.5 shadow-clay-pink transform -rotate-3 hover:rotate-0 transition-transform duration-300">
                 <Heart className="w-4 h-4 fill-pink-500 text-pink-500" />
-                <span className="font-black text-slate-900">SAFE</span>
+                <span className="font-black text-slate-900">REUNITED</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. TOP 4 ACTION MODE CARDS (CLAYMORPHIC ELEVATION MATCHING REFERENCE) */}
+      {/* 2. THE 4 CORE REUNIFICATION PILLARS (CLAYMORPHIC ELEVATION MATCHING REFERENCE) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
+          {/* Pillar 1: Find Loved Ones */}
           <Link
-            to="/alerts"
-            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-violet-300"
-          >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
-              <Navigation className="w-5 h-5" />
-            </div>
-            <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              CURRENT LOCATION CAP ALERT
-            </span>
-            <span className="text-[9px] text-rose-500 font-bold mt-0.5">Live GPS Sync</span>
-          </Link>
-
-          <Link
-            to="/alerts"
+            to="/search"
             className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-violet-300"
           >
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
-              <Compass className="w-5 h-5" />
+              <Search className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              ALL INDIA CAP ALERT
+              FIND LOVED ONES
             </span>
-            <span className="text-[9px] text-violet-600 font-bold mt-0.5">14 Active Warnings</span>
+            <span className="text-[9px] text-violet-600 font-bold mt-0.5">Search Roster &amp; Sightings</span>
           </Link>
 
+          {/* Pillar 2: One-Tap I Am Safe */}
           <Link
-            to="/alerts"
-            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-violet-300"
-          >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              STATE WISE CAP ALERT
-            </span>
-            <span className="text-[9px] text-amber-600 font-bold mt-0.5">Filter by State</span>
-          </Link>
-
-          <Link
-            to="/alerts"
-            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-violet-300"
+            to="/safe-checkin"
+            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-emerald-300"
           >
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
-              <ShieldAlert className="w-5 h-5" />
+              <HeartHandshake className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              EVACUATION PROTOCOL
+              ONE-TAP "I AM SAFE"
             </span>
-            <span className="text-[9px] text-emerald-600 font-bold mt-0.5">Civil Defense Directives</span>
+            <span className="text-[9px] text-emerald-600 font-bold mt-0.5">Stop Panic, Alert Family</span>
+          </Link>
+
+          {/* Pillar 3: Relief Camps & Rosters */}
+          <Link
+            to="/camps"
+            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-indigo-300"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-600 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
+              RELIEF CAMPS &amp; ROSTERS
+            </span>
+            <span className="text-[9px] text-indigo-600 font-bold mt-0.5">Live Shelter Directory</span>
+          </Link>
+
+          {/* Pillar 4: Report Missing Person */}
+          <Link
+            to="/report-missing"
+            className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-rose-300"
+          >
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
+              <UserX className="w-5 h-5" />
+            </div>
+            <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
+              REPORT MISSING PERSON
+            </span>
+            <span className="text-[9px] text-rose-500 font-bold mt-0.5">Priority Cross-Matching</span>
           </Link>
         </div>
       </section>

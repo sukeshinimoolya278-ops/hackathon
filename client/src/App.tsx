@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DisasterProvider } from './context/DisasterContext';
 import { DLEMeshProvider } from './context/DLEMeshContext';
@@ -71,7 +71,7 @@ export const App: React.FC = () => {
                   />
                   <Route path="/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/family-token" element={<FamilyTokenPage />} />
-                  <Route path="/alerts" element={<AlertPortalPage />} />
+                  <Route path="/alerts" element={<Navigate to="/camps" replace />} />
                 </Routes>
               </main>
 

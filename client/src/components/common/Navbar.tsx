@@ -15,8 +15,8 @@ import {
   Zap,
   Bell,
   X,
-  AlertTriangle,
-  Download,
+  UserX,
+  UserPlus,
   FileText,
   Sparkles,
 } from 'lucide-react';
@@ -33,12 +33,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocationPicker, onOpenMesh
 
   const navLinks = [
     { to: '/', label: 'Home', icon: <Home className="w-3.5 h-3.5" /> },
-    { to: '/alerts', label: 'Live Alerts', icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> },
-    { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-    { to: '/camps', label: 'Relief Camps', icon: <MapPin className="w-3.5 h-3.5" /> },
-    { to: '/search', label: 'Search Index', icon: <Search className="w-3.5 h-3.5" /> },
-    { to: '/safe-checkin', label: 'Safe Check-In', icon: <HeartHandshake className="w-3.5 h-3.5" /> },
-    { to: '/volunteer-intake', label: 'Intake', icon: <FileText className="w-3.5 h-3.5" /> },
+    { to: '/search', label: 'Find Loved Ones', icon: <Search className="w-3.5 h-3.5 text-violet-500" /> },
+    { to: '/camps', label: 'Relief Camps', icon: <MapPin className="w-3.5 h-3.5 text-pink-500" /> },
+    { to: '/safe-checkin', label: 'I Am Safe', icon: <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" /> },
+    { to: '/report-missing', label: 'Report Missing', icon: <UserX className="w-3.5 h-3.5 text-rose-500" /> },
+    { to: '/dashboard', label: 'Command Hub', icon: <LayoutDashboard className="w-3.5 h-3.5 text-slate-500" /> },
   ];
 
   return (
@@ -140,14 +139,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocationPicker, onOpenMesh
             {isMeshActive && <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />}
           </button>
 
-          {/* Emergency Alert Portal Shortcut Button */}
+          {/* Emergency Report Missing CTA Button */}
           <Link
-            to="/alerts"
+            to="/report-missing"
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-pink-500 via-rose-500 to-fuchsia-600 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-clay-pink hover:shadow-glow-pink active:scale-[0.98]"
-            title="Open Live National Disaster Radar"
+            title="Report a Missing Family Member"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Alert Radar</span>
+            <UserPlus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">+ Report Missing</span>
+            <span className="sm:hidden">+ Report</span>
           </Link>
         </div>
       </div>
