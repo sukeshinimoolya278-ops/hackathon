@@ -227,7 +227,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600">
-                      Sector: <strong>{activeDisaster?.location}</strong> &bull; {camps.length} camps operational
+                      Sector: <strong>{activeDisaster?.location || 'National Sector'}</strong> &bull; {camps.length} camps operational
                     </p>
                     <div className="flex items-center justify-between pt-1">
                       <Link
@@ -238,7 +238,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                         <ArrowRight className="w-3 h-3" />
                       </Link>
                       <span className="font-mono text-[10px] text-violet-900 font-bold">
-                        📍 {activeDisaster?.latitude.toFixed(2)}°, {activeDisaster?.longitude.toFixed(2)}°
+                        📍 {activeDisaster ? `${activeDisaster.latitude.toFixed(2)}°, ${activeDisaster.longitude.toFixed(2)}°` : '20.59°, 78.96°'}
                       </span>
                     </div>
                   </div>
