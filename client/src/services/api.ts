@@ -232,6 +232,51 @@ const SEED_SEARCH_RECORDS: SearchResult[] = [
     },
     createdAt: new Date(Date.now() - 3600000 * 30).toISOString(),
   },
+  {
+    id: 'seed-rep-4',
+    reportCode: 'MIS-9104',
+    fullName: 'Devi Prasad',
+    approxAge: 58,
+    gender: 'MALE',
+    physicalDesc: 'Grey shirt, limping on left foot, carries medical prescription pouch',
+    priorityFlag: 'CRITICAL_MEDICAL',
+    lastSeenLocation: 'Mundakkai bridge crossing near temple',
+    reporterName: 'Ananya Prasad',
+    reporterPhoneMasked: '+91 9446****12',
+    status: 'LOCATED_AT_CAMP',
+    verificationBadge: {
+      verified: true,
+      campName: 'Vythiri Community Hall Emergency Shelter',
+      campLocation: 'Vythiri Bypass, Wayanad',
+      verifiedDate: new Date(Date.now() - 3600000 * 3).toISOString(),
+    },
+    rumorControlNotice: null,
+    timeline: [
+      {
+        id: 'evt-4a',
+        status: 'REPORTED',
+        source: 'PUBLIC_FORM',
+        location: 'Mundakkai Bridge',
+        notes: 'Urgent medical report filed by daughter. Requires daily insulin injection.',
+        timestamp: new Date(Date.now() - 3600000 * 18).toISOString(),
+      },
+      {
+        id: 'evt-4b',
+        status: 'LOCATED_AT_CAMP',
+        source: 'CAMP_INTAKE',
+        location: 'Vythiri Emergency Shelter',
+        notes: 'Arrived at shelter medical post. Administered basic saline & insulin.',
+        verifiedByCamp: 'Vythiri Community Hall Emergency Shelter',
+        timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
+      },
+    ],
+    familyGroup: {
+      token: 'FAM-WAYANAD-3310',
+      contactName: 'Ananya Prasad',
+      contactPhoneMasked: '+91 9446****12',
+    },
+    createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+  },
 ];
 
 function handleFallbackRequest<T>(endpoint: string, options: RequestInit = {}): T {
@@ -446,7 +491,10 @@ function handleFallbackRequest<T>(endpoint: string, options: RequestInit = {}): 
 
     const allRecords = [...convertedLocal, ...SEED_SEARCH_RECORDS];
 
-    const results = q
+    const priMatch = endpoint.match(/[?&]priority=([^&]+)/);
+    const filterPri = priMatch ? decodeURIComponent(priMatch[1]) : '';
+
+    let results = q
       ? allRecords.filter(item => {
           return (
             item.fullName.toLowerCase().includes(q) ||
@@ -457,6 +505,10 @@ function handleFallbackRequest<T>(endpoint: string, options: RequestInit = {}): 
           );
         })
       : allRecords;
+
+    if (filterPri && filterPri !== 'ALL') {
+      results = results.filter(item => item.priorityFlag === filterPri);
+    }
 
     return {
       query: rawQ,
@@ -863,9 +915,9 @@ export const api = {
     }),
 
   // Search
-  search: (query: string, disasterId?: string) =>
+  search: (query: string = '', disasterId?: string, priority?: string) =>
     request<{ query: string; count: number; results: SearchResult[] }>(
-      `/search?q=${encodeURIComponent(query)}${disasterId ? `&disasterId=${disasterId}` : ''}`
+      `/search?q=${encodeURIComponent(query)}${disasterId ? `&disasterId=${disasterId}` : ''}${priority && priority !== 'ALL' ? `&priority=${priority}` : ''}`
     ),
 
   // Leads

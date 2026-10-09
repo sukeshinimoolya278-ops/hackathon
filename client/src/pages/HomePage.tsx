@@ -178,6 +178,35 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
                 </button>
               </form>
             </div>
+
+            {/* Emergency Priority Triage Fast Queue Strip */}
+            <div className="pt-2 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                <span>Urgent Triage:</span>
+              </span>
+              <Link
+                to="/search?priority=CHILD_ALONE"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <span>👶 Unaccompanied Children</span>
+                <span className="bg-rose-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">4</span>
+              </Link>
+              <Link
+                to="/search?priority=CRITICAL_MEDICAL"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <span>🏥 Critical Medical</span>
+                <span className="bg-red-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">7</span>
+              </Link>
+              <Link
+                to="/search?priority=ELDERLY"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition-all shadow-xs hover:scale-105"
+              >
+                <span>👵 Elderly (65+)</span>
+                <span className="bg-amber-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">12</span>
+              </Link>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: 3D CLAYMORPHIC DASHBOARD WINDOW MOCKUP */}

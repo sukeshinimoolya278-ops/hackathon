@@ -222,22 +222,85 @@ export const MissingReportPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
-                  Urgent Priority Category
+                <label className="block text-sm font-bold text-slate-800 mb-2 flex items-center justify-between">
+                  <span>Urgent Triage Priority Level</span>
+                  <span className="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                    High-priority records escalate to field dispatch
+                  </span>
                 </label>
-                <select
-                  value={formData.priorityFlag}
-                  onChange={(e) => setFormData({ ...formData, priorityFlag: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base focus:ring-2 focus:ring-teal-600 focus:outline-none bg-white"
-                >
-                  <option value="NONE">Standard</option>
-                  <option value="CHILD_ALONE">🚨 Unaccompanied Minor (Child traveling alone)</option>
-                  <option value="CRITICAL_MEDICAL">⚠️ Critical Medical Need (Insulin, Dialysis, Heart)</option>
-                  <option value="ELDERLY">👵 Elderly Person</option>
-                </select>
-                <span className="text-[11px] text-slate-500 mt-0.5 block">
-                  Priority cases are automatically pushed to the top of the relief coordinator review queue.
-                </span>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    {
+                      id: 'NONE',
+                      title: 'Standard Urgency',
+                      desc: 'Regular adult survivor or adult report',
+                      icon: '🛡️',
+                      activeBorder: 'border-slate-800 bg-slate-50 ring-2 ring-slate-800',
+                      badge: 'Standard Queue',
+                      badgeColor: 'bg-slate-200 text-slate-800',
+                    },
+                    {
+                      id: 'CHILD_ALONE',
+                      title: 'Unaccompanied Child',
+                      desc: 'Minor separated from parents / traveling alone',
+                      icon: '👶',
+                      activeBorder: 'border-rose-500 bg-rose-50 ring-2 ring-rose-500',
+                      badge: 'Priority 1 • Welfare Alert',
+                      badgeColor: 'bg-rose-600 text-white',
+                    },
+                    {
+                      id: 'CRITICAL_MEDICAL',
+                      title: 'Critical Medical Need',
+                      desc: 'Insulin, dialysis, heart condition, severe trauma',
+                      icon: '🏥',
+                      activeBorder: 'border-red-500 bg-red-50 ring-2 ring-red-500',
+                      badge: 'Priority 2 • Clinic Dispatch',
+                      badgeColor: 'bg-red-600 text-white',
+                    },
+                    {
+                      id: 'ELDERLY',
+                      title: 'Elderly Citizen (65+)',
+                      desc: 'Senior citizen needing mobility or memory care',
+                      icon: '👵',
+                      activeBorder: 'border-amber-500 bg-amber-50 ring-2 ring-amber-500',
+                      badge: 'Priority 3 • Assisted Care',
+                      badgeColor: 'bg-amber-600 text-white',
+                    },
+                  ].map((p) => {
+                    const isSelected = formData.priorityFlag === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, priorityFlag: p.id })}
+                        className={`text-left p-3.5 rounded-2xl border-2 transition-all flex flex-col justify-between gap-2 cursor-pointer ${
+                          isSelected
+                            ? p.activeBorder + ' shadow-clay-sm'
+                            : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/60'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">{p.icon}</span>
+                            <div>
+                              <div className="text-sm font-bold text-slate-900">{p.title}</div>
+                              <div className="text-xs text-slate-500">{p.desc}</div>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0" />
+                          )}
+                        </div>
+                        <div className="pt-1 flex items-center justify-between">
+                          <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${p.badgeColor}`}>
+                            {p.badge}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
