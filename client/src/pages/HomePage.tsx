@@ -8,6 +8,7 @@ import {
   UserX,
   Eye,
   ShieldCheck,
+  ShieldAlert,
   HeartHandshake,
   MapPin,
   QrCode,
@@ -344,13 +345,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
             to="/alerts"
             className="clay-card p-4 flex flex-col items-center justify-center text-center group hover:border-violet-300"
           >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
-              <CloudRain className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-2 shadow-md group-hover:scale-110 transition-transform">
+              <ShieldAlert className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              FORECAST &amp; PODCAST
+              EVACUATION PROTOCOL
             </span>
-            <span className="text-[9px] text-blue-600 font-bold mt-0.5">Live Voice Bulletin</span>
+            <span className="text-[9px] text-emerald-600 font-bold mt-0.5">Civil Defense Directives</span>
           </Link>
         </div>
       </section>

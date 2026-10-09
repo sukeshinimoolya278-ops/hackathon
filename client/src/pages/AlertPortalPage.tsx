@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { useDisaster } from '../context/DisasterContext';
-import { CapAlert, EarthquakeRecord, WeatherOverviewData } from '../types';
+import { CapAlert, EarthquakeRecord } from '../types';
 import {
   Compass,
   MapPin,
   AlertTriangle,
-  CloudRain,
   Navigation,
   Globe,
   Radio,
@@ -17,32 +16,23 @@ import {
   Filter,
   Activity,
   Layers,
-  Thermometer,
-  Wind,
-  Droplets,
-  Calendar,
-  ExternalLink,
-  ChevronRight,
+  Phone,
+  PhoneCall,
   Shield,
   Zap,
   ArrowRight,
   RefreshCw,
-  Play,
-  Square,
-  Volume2,
-  FileText,
-  Headphones,
   Maximize2,
-  Info,
   List,
-  Share2,
   ArrowUp,
-  Sun,
-  Cloud,
-  CloudLightning,
+  ShieldAlert,
+  LifeBuoy,
+  HeartHandshake,
+  CheckCircle2,
+  AlertOctagon,
 } from 'lucide-react';
 
-// Custom weather alert divIcon matching storm cloud icons in photo
+// Custom weather alert divIcon matching storm cloud icons
 const weatherIcon = (hazardType: string, severity: string) => {
   const bgColor =
     severity === 'RED_ALERT'
@@ -54,7 +44,7 @@ const weatherIcon = (hazardType: string, severity: string) => {
   return L.divIcon({
     className: 'custom-weather-marker',
     html: `<div style="position:relative; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:${bgColor}; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.35); font-size:14px; cursor:pointer;">
-      <span>⛈️</span>
+      <span>⚠️</span>
       ${severity === 'RED_ALERT' ? '<div style="position:absolute; inset:-4px; border-radius:50%; background:rgba(220,38,38,0.35); animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>' : ''}
     </div>`,
     iconSize: [30, 30],
@@ -65,9 +55,9 @@ const weatherIcon = (hazardType: string, severity: string) => {
 // User Live GPS Icon
 const userGpsIcon = L.divIcon({
   className: 'custom-user-gps-marker',
-  html: `<div style="position:relative; width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#1e4b88; border:2.5px solid white; box-shadow:0 0 12px rgba(30,75,136,0.8); font-size:14px;">
+  html: `<div style="position:relative; width:32px; height:32px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#7c3aed; border:2.5px solid white; box-shadow:0 0 12px rgba(124,58,237,0.8); font-size:14px;">
     <span>📍</span>
-    <div style="position:absolute; inset:-6px; border-radius:50%; border:2px solid #3b82f6; animation:ping 1.6s infinite;"></div>
+    <div style="position:absolute; inset:-6px; border-radius:50%; border:2px solid #a855f7; animation:ping 1.6s infinite;"></div>
   </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16],
@@ -100,30 +90,20 @@ export const AlertPortalPage: React.FC = () => {
   const navigate = useNavigate();
   const { switchDisaster, disasters } = useDisaster();
 
-  // Top 4 Action Tabs matching photo
-  const [capMode, setCapMode] = useState<'CURRENT' | 'ALL_INDIA' | 'STATE_WISE' | 'FORECAST'>('ALL_INDIA');
+  // Top Action Tabs
+  const [capMode, setCapMode] = useState<'CURRENT' | 'ALL_INDIA' | 'STATE_WISE' | 'EVACUATION'>('ALL_INDIA');
   const [selectedState, setSelectedState] = useState<string>('PAN INDIA');
-  const [activeCategory, setActiveCategory] = useState<'IMD_FORECAST' | 'WEATHER'>('IMD_FORECAST');
+  const [severityFilter, setSeverityFilter] = useState<'ALL' | 'RED_ALERT' | 'ORANGE_ALERT'>('ALL');
 
   const [alerts, setAlerts] = useState<CapAlert[]>([]);
   const [earthquakes, setEarthquakes] = useState<EarthquakeRecord[]>([]);
-  const [weatherData, setWeatherData] = useState<WeatherOverviewData | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<CapAlert | null>(null);
 
-  // Live Location & Weather Tracking
+  // Live Location Tracking
   const [userLiveCoords, setUserLiveCoords] = useState<{ lat: number; lng: number; accuracy?: number } | null>(null);
-  const [activeLocationLabel, setActiveLocationLabel] = useState<string>('National Weather Monitor');
-  const [locationSearchInput, setLocationSearchInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [weatherLoading, setWeatherLoading] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20.5937, 78.9629]);
   const [mapZoom, setMapZoom] = useState<number>(5);
-
-  // Live Meteorological Podcast / Audio Broadcast State
-  const [isPlayingPodcast, setIsPlayingPodcast] = useState(false);
-  const [podcastSpeed, setPodcastSpeed] = useState<number>(1.0);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const statesList = [
     'PAN INDIA',
@@ -137,20 +117,6 @@ export const AlertPortalPage: React.FC = () => {
     'Uttarakhand',
     'Rajasthan',
   ];
-
-  // Fetch real-time live weather for specific coordinates
-  const fetchWeatherForLocation = async (lat: number, lng: number, locLabel: string) => {
-    setWeatherLoading(true);
-    setActiveLocationLabel(locLabel);
-    try {
-      const data = await api.getWeatherOverview(lat, lng, locLabel);
-      setWeatherData(data);
-    } catch (err) {
-      console.error('Failed to fetch live weather:', err);
-    } finally {
-      setWeatherLoading(false);
-    }
-  };
 
   // Initial and state-based data loading
   const fetchAlertsData = async () => {
@@ -168,12 +134,9 @@ export const AlertPortalPage: React.FC = () => {
       setMapZoom(stateMeta.zoom);
 
       if (alertsRes.alerts.length > 0) {
-        const first = alertsRes.alerts[0];
-        setSelectedAlert(first);
-        await fetchWeatherForLocation(first.latitude, first.longitude, `${first.locationName}, ${first.state}`);
+        setSelectedAlert(alertsRes.alerts[0]);
       } else {
         setSelectedAlert(null);
-        await fetchWeatherForLocation(stateMeta.lat, stateMeta.lng, `${selectedState} Weather Center`);
       }
     } catch (err) {
       console.error('Error fetching alerts feed:', err);
@@ -186,61 +149,17 @@ export const AlertPortalPage: React.FC = () => {
     fetchAlertsData();
   }, [selectedState]);
 
-  // Audio Podcast Cleanup on Unmount
-  useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  // Handle clicking an alert from the middle column
   const handleAlertClick = (alert: CapAlert) => {
     setSelectedAlert(alert);
     setMapCenter([alert.latitude, alert.longitude]);
     setMapZoom(9);
-    fetchWeatherForLocation(alert.latitude, alert.longitude, `${alert.locationName}, ${alert.state}`);
   };
 
-  // Handle clicking an earthquake record
   const handleEarthquakeClick = (eq: EarthquakeRecord) => {
     setMapCenter([eq.latitude, eq.longitude]);
-    setMapZoom(9);
-    fetchWeatherForLocation(eq.latitude, eq.longitude, `Epicenter: ${eq.locationName}`);
+    setMapZoom(8);
   };
 
-  // Handle 1-Click Disaster Sector Activation
-  const handleActivateDisasterFromAlert = async (targetAlert: CapAlert) => {
-    const match = disasters.find(
-      d =>
-        d.name.toLowerCase().includes(targetAlert.district.toLowerCase()) ||
-        d.location.toLowerCase().includes(targetAlert.state.toLowerCase()) ||
-        d.name.toLowerCase().includes(targetAlert.hazardType.toLowerCase())
-    );
-
-    if (match) {
-      await switchDisaster(match.id);
-      navigate('/camps');
-    } else {
-      try {
-        await api.createCustomDisaster({
-          name: `${targetAlert.hazardType} Emergency - ${targetAlert.locationName}`,
-          description: targetAlert.description,
-          location: `${targetAlert.locationName}, ${targetAlert.district}`,
-          state: targetAlert.state,
-          latitude: targetAlert.latitude,
-          longitude: targetAlert.longitude,
-          alertLevel: targetAlert.severity,
-        });
-        navigate('/camps');
-      } catch (err: any) {
-        alert(err.message || 'Error activating disaster sector');
-      }
-    }
-  };
-
-  // Handle Accurate Current Live GPS Location
   const handleCurrentLocationAlert = () => {
     setCapMode('CURRENT');
     if (!navigator.geolocation) {
@@ -253,71 +172,36 @@ export const AlertPortalPage: React.FC = () => {
         const { latitude, longitude, accuracy } = pos.coords;
         setUserLiveCoords({ lat: latitude, lng: longitude, accuracy });
         setMapCenter([latitude, longitude]);
-        setMapZoom(11);
-        fetchWeatherForLocation(latitude, longitude, 'Your Live GPS Location');
+        setMapZoom(10);
       },
       err => {
         console.warn('GPS location error:', err);
-        alert('Could not acquire accurate GPS coordinates. Showing Pan-India.');
+        alert('Could not acquire GPS coordinates. Showing Pan-India.');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
-  // Handle Live Meteorological Audio Podcast Playback
-  const handleTogglePodcast = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      alert('Web Speech Synthesis is not supported in this browser.');
-      return;
-    }
-
-    if (isPlayingPodcast) {
-      window.speechSynthesis.cancel();
-      setIsPlayingPodcast(false);
-      return;
-    }
-
-    const script =
-      weatherData?.audioPodcastScript ||
-      `GlobalX live meteorological broadcast for ${weatherData?.locationName || activeLocationLabel}. Current temperature is ${weatherData?.current.tempCelsius} degrees Celsius with ${weatherData?.current.condition}. Wind is blowing at ${weatherData?.current.windKmph} kilometers per hour from the ${weatherData?.current.windDirection}. Relative humidity is ${weatherData?.current.humidityPercent} percent. All emergency responders, monitor GlobalX updates.`;
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(script);
-    utterance.rate = podcastSpeed;
-    utterance.pitch = 1.0;
-
-    const voices = window.speechSynthesis.getVoices();
-    const naturalVoice = voices.find(
-      v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('India') || v.name.includes('English'))
+  const handleActivateDisasterFromAlert = (alert: CapAlert) => {
+    const matchedDisaster = disasters.find(
+      d =>
+        d.state?.toLowerCase() === alert.state.toLowerCase() ||
+        d.location.toLowerCase().includes(alert.district.toLowerCase()) ||
+        alert.locationName.toLowerCase().includes(d.location.toLowerCase())
     );
-    if (naturalVoice) {
-      utterance.voice = naturalVoice;
-    }
 
-    utterance.onstart = () => setIsPlayingPodcast(true);
-    utterance.onend = () => setIsPlayingPodcast(false);
-    utterance.onerror = () => setIsPlayingPodcast(false);
-
-    speechUtteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const handleSearchLocation = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!locationSearchInput.trim()) return;
-    const term = locationSearchInput.trim().toLowerCase();
-    const matched = alerts.find(
-      a =>
-        a.locationName.toLowerCase().includes(term) ||
-        a.district.toLowerCase().includes(term) ||
-        a.state.toLowerCase().includes(term)
-    );
-    if (matched) {
-      handleAlertClick(matched);
+    if (matchedDisaster) {
+      switchDisaster(matchedDisaster.id);
+      navigate('/camps');
     } else {
-      alert(`Location "${locationSearchInput}" not found in current alert zones.`);
+      navigate('/camps');
     }
   };
+
+  const filteredAlerts = alerts.filter(a => {
+    if (severityFilter === 'ALL') return true;
+    return a.severity === severityFilter;
+  });
 
   return (
     <div className="bg-[#f0f2f5] min-h-screen pb-10 font-sans text-slate-800">
@@ -344,17 +228,14 @@ export const AlertPortalPage: React.FC = () => {
             <Link to="/" className="flex items-center gap-1 hover:text-pink-300 transition-colors">
               <span>🏠</span> HOME
             </Link>
-            <Link to="/dashboard" className="flex items-center gap-1 hover:text-pink-300 transition-colors">
-              <span>📊</span> DASHBOARD
-            </Link>
-            <Link to="/alerts" className="flex items-center gap-1 hover:text-pink-300 text-pink-300 transition-colors">
-              <span>📡</span> RSS FEED
-            </Link>
             <Link to="/camps" className="flex items-center gap-1 hover:text-pink-300 transition-colors">
-              <span>ℹ️</span> ABOUT
+              <span>🏕️</span> RELIEF CAMPS
+            </Link>
+            <Link to="/search" className="flex items-center gap-1 hover:text-pink-300 transition-colors">
+              <span>🔍</span> FIND LOVED ONES
             </Link>
             <Link to="/safe-checkin" className="flex items-center gap-1 hover:text-pink-300 transition-colors">
-              <span>🛡️</span> DOS &amp; DON'TS
+              <span>🛡️</span> ONE-TAP SAFE
             </Link>
             <button
               type="button"
@@ -425,47 +306,58 @@ export const AlertPortalPage: React.FC = () => {
             <span className="text-[9px] text-amber-600 font-bold mt-0.5">Regional Zones</span>
           </button>
 
-          {/* Card 4: FORECAST */}
+          {/* Card 4: EVACUATION PROTOCOL */}
           <button
             type="button"
-            onClick={() => setCapMode('FORECAST')}
+            onClick={() => setCapMode('EVACUATION')}
             className={`bg-white/95 hover:bg-white border border-violet-100 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center transition-all duration-200 shadow-clay hover:shadow-xl hover:-translate-y-0.5 ${
-              capMode === 'FORECAST' ? 'ring-2 ring-cyan-500 border-cyan-400 bg-cyan-50/20' : ''
+              capMode === 'EVACUATION' ? 'ring-2 ring-emerald-500 border-emerald-400 bg-emerald-50/20' : ''
             }`}
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 text-white flex items-center justify-center mb-1.5 shadow-md shadow-cyan-500/25">
-              <CloudRain className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-1.5 shadow-md shadow-emerald-500/25">
+              <ShieldAlert className="w-5 h-5" />
             </div>
             <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-              FORECAST &amp; RADAR
+              EVACUATION PROTOCOL
             </span>
-            <span className="text-[9px] text-blue-600 font-bold mt-0.5">Live Meteorological Feed</span>
+            <span className="text-[9px] text-emerald-600 font-bold mt-0.5">Civil Defense Guidelines</span>
           </button>
         </div>
 
-        {/* 3. SUB-FILTER BAR (MATCHING LAPTOP PHOTO) */}
+        {/* 3. SUB-FILTER BAR */}
         <div className="bg-white/90 backdrop-blur-md border border-violet-100 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-clay-sm">
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => setActiveCategory('IMD_FORECAST')}
+              onClick={() => setSeverityFilter('ALL')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeCategory === 'IMD_FORECAST'
+                severityFilter === 'ALL'
                   ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-3d-badge'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              IMD Forecast
+              All Alerts ({alerts.length})
             </button>
 
             <button
-              onClick={() => setActiveCategory('WEATHER')}
+              onClick={() => setSeverityFilter('RED_ALERT')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeCategory === 'WEATHER'
-                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-3d-badge-pink'
+                severityFilter === 'RED_ALERT'
+                  ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-3d-badge-pink'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              Live Weather
+              Red Alerts
+            </button>
+
+            <button
+              onClick={() => setSeverityFilter('ORANGE_ALERT')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                severityFilter === 'ORANGE_ALERT'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              Orange Warnings
             </button>
 
             {/* State selector dropdown */}
@@ -485,38 +377,31 @@ export const AlertPortalPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-bold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-lg border border-violet-200/60 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Live CAP Telemetry Feed
+              Live CAP Telemetry Feed &bull; 0 Rumors
             </span>
           </div>
         </div>
 
-        {/* 4. MAIN THREE-COLUMN SECTION (MATCHING PHOTO LAYOUT) */}
+        {/* 4. MAIN THREE-COLUMN SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
           {/* COLUMN 1: INTERACTIVE GEOGRAPHIC MAP (7 COLS / ~58%) */}
           <div className="lg:col-span-7 bg-white border border-violet-100/90 rounded-3xl p-2 h-[680px] relative overflow-hidden shadow-clay flex flex-col">
-            {/* Floating Tools on Left of Map matching photo */}
+            {/* Floating Tools on Left of Map */}
             <div className="absolute left-4 top-20 z-10 flex flex-col gap-2">
-              <button
-                type="button"
-                className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-                title="Map Tools"
+              <Link
+                to="/camps"
+                className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+                title="Relief Camps"
               >
-                🛠️
-              </button>
-              <button
-                type="button"
-                className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-lg hover:scale-105 transition-transform"
-                title="Share"
+                🏕️
+              </Link>
+              <Link
+                to="/safe-checkin"
+                className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white flex items-center justify-center font-black text-xs shadow-lg hover:scale-105 transition-transform"
+                title="I Am Safe"
               >
-                f
-              </button>
-              <button
-                type="button"
-                className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-rose-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs shadow-lg hover:scale-105 transition-transform"
-                title="Broadcast Feed"
-              >
-                ▶
-              </button>
+                🛡️
+              </Link>
               <button
                 type="button"
                 onClick={() => {
@@ -531,7 +416,7 @@ export const AlertPortalPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Floating Fullscreen button on Top Right matching photo */}
+            {/* Floating Fullscreen button on Top Right */}
             <div className="absolute right-4 top-4 z-10">
               <button
                 type="button"
@@ -585,23 +470,20 @@ export const AlertPortalPage: React.FC = () => {
                           <div className="font-mono text-[11px] text-slate-600">
                             {userLiveCoords.lat.toFixed(5)}° N, {userLiveCoords.lng.toFixed(5)}° E
                           </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              fetchWeatherForLocation(userLiveCoords.lat, userLiveCoords.lng, 'Your Live GPS Location')
-                            }
-                            className="w-full mt-1.5 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-bold text-[10px] shadow-sm"
+                          <Link
+                            to="/safe-checkin"
+                            className="block w-full mt-1.5 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-center rounded-xl font-bold text-[10px] shadow-sm"
                           >
-                            Sync Weather &amp; Podcast Here
-                          </button>
+                            Mark Safe at This Location
+                          </Link>
                         </div>
                       </Popup>
                     </Marker>
                   </>
                 )}
 
-                {/* Plot active CAP storm warnings matching yellow cloud icons in photo */}
-                {alerts.map(alert => (
+                {/* Plot active CAP storm warnings */}
+                {filteredAlerts.map(alert => (
                   <Marker
                     key={alert.id}
                     position={[alert.latitude, alert.longitude]}
@@ -610,7 +492,9 @@ export const AlertPortalPage: React.FC = () => {
                     <Popup>
                       <div className="p-1 space-y-1.5 text-xs max-w-[240px]">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-lg bg-[#e67e22] text-white">
+                          <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-lg text-white ${
+                            alert.severity === 'RED_ALERT' ? 'bg-red-600' : 'bg-amber-600'
+                          }`}>
                             {alert.severity.replace('_', ' ')}
                           </span>
                           <span className="font-bold text-slate-500 font-mono text-[10px]">
@@ -633,24 +517,18 @@ export const AlertPortalPage: React.FC = () => {
                         <div className="pt-1 flex flex-col gap-1.5">
                           <button
                             type="button"
-                            onClick={() =>
-                              fetchWeatherForLocation(
-                                alert.latitude,
-                                alert.longitude,
-                                `${alert.locationName}, ${alert.state}`
-                              )
-                            }
-                            className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-[10px] shadow-sm"
-                          >
-                            Sync Weather &amp; Podcast Here
-                          </button>
-                          <button
-                            type="button"
                             onClick={() => handleActivateDisasterFromAlert(alert)}
-                            className="w-full py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-bold text-[10px] shadow-sm"
+                            className="w-full py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-bold text-[10px] shadow-sm flex items-center justify-center gap-1"
                           >
-                            Activate Sector &amp; Relief Camps
+                            <span>Open Sector Relief Camps</span>
+                            <ArrowRight className="w-3 h-3" />
                           </button>
+                          <Link
+                            to="/report-sighting"
+                            className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-center rounded-xl font-bold text-[10px] border border-slate-300"
+                          >
+                            Report Sighting in Zone
+                          </Link>
                         </div>
                       </div>
                     </Popup>
@@ -676,17 +554,14 @@ export const AlertPortalPage: React.FC = () => {
                         </strong>
                         <p className="text-slate-600">{eq.locationName}</p>
                         <div className="text-[10px] text-slate-400 font-mono">
-                          {eq.depthKm} km &bull; {eq.timestamp}
+                          {eq.depthKm} km depth &bull; {eq.timestamp}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            fetchWeatherForLocation(eq.latitude, eq.longitude, `Epicenter: ${eq.locationName}`)
-                          }
-                          className="w-full mt-1.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold text-[10px] shadow-sm"
+                        <Link
+                          to="/camps"
+                          className="block w-full mt-1.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-center rounded-xl font-bold text-[10px] shadow-sm"
                         >
-                          Sync Epicenter Weather &amp; Podcast
-                        </button>
+                          Check Shelters Near Epicenter
+                        </Link>
                       </div>
                     </Popup>
                   </Marker>
@@ -695,39 +570,58 @@ export const AlertPortalPage: React.FC = () => {
             </div>
           </div>
 
-          {/* COLUMN 2: WEATHER FORECAST (MIDDLE COLUMN MATCHING PHOTO) */}
+          {/* COLUMN 2: ACTIVE HAZARD BULLETINS (2 COLS) */}
           <div className="lg:col-span-2 bg-white/95 border border-violet-100 rounded-3xl overflow-hidden flex flex-col h-[680px] shadow-clay">
-            {/* Header Bar matching photo with gradient */}
+            {/* Header Bar */}
             <div className="bg-gradient-to-r from-violet-800 via-indigo-900 to-purple-800 text-white px-3.5 py-3 text-center text-xs font-black uppercase tracking-wider border-b border-pink-500/40 flex items-center justify-center gap-1.5">
-              <CloudRain className="w-3.5 h-3.5 text-pink-300" />
-              <span>Weather Forecast</span>
+              <AlertTriangle className="w-3.5 h-3.5 text-pink-300" />
+              <span>Hazard Bulletins ({filteredAlerts.length})</span>
             </div>
 
-            {/* Vertical List of Warm Amber Cards matching photo */}
+            {/* Vertical List of Alert Cards */}
             <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
-              {alerts.length === 0 ? (
-                <div className="text-center py-10 text-slate-400 text-xs">
-                  No active warnings.
+              {filteredAlerts.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 text-xs px-2">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-80" />
+                  <strong>No Active Hazards</strong>
+                  <p className="text-[11px] mt-1 text-slate-500">All sectors currently operating under normal status.</p>
                 </div>
               ) : (
-                alerts.map(a => {
+                filteredAlerts.map(a => {
                   const isSelected = selectedAlert?.id === a.id;
+                  const isRed = a.severity === 'RED_ALERT';
                   return (
                     <button
                       key={a.id}
                       type="button"
                       onClick={() => handleAlertClick(a)}
-                      className={`w-full text-center p-3 rounded-2xl transition-all text-xs ${
+                      className={`w-full text-left p-3 rounded-2xl transition-all text-xs border ${
                         isSelected
-                          ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-3d-badge-pink ring-2 ring-pink-300'
-                          : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md'
+                          ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-3d-badge-pink ring-2 ring-pink-300 border-pink-400'
+                          : isRed
+                          ? 'bg-red-50 hover:bg-red-100/80 border-red-200 text-slate-900 shadow-xs'
+                          : 'bg-amber-50 hover:bg-amber-100/80 border-amber-200 text-slate-900 shadow-xs'
                       }`}
                     >
-                      <div className="font-black text-[12px] leading-tight">
-                        {a.hazardType === 'THUNDERSTORM' ? 'Thunderstorm' : a.hazardType}
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          isSelected
+                            ? 'bg-white/20 text-white'
+                            : isRed
+                            ? 'bg-red-600 text-white'
+                            : 'bg-amber-500 text-white'
+                        }`}>
+                          {a.severity.replace('_', ' ')}
+                        </span>
+                        <span className={`text-[10px] font-mono font-bold ${isSelected ? 'text-pink-100' : 'text-slate-500'}`}>
+                          {a.hazardType}
+                        </span>
                       </div>
-                      <div className="text-[11px] font-semibold mt-0.5 opacity-95">
-                        {a.locationName}, {a.state}
+                      <div className="font-bold text-[12px] leading-tight">
+                        {a.headline}
+                      </div>
+                      <div className={`text-[11px] mt-1 font-medium ${isSelected ? 'text-pink-100' : 'text-slate-600'}`}>
+                        📍 {a.locationName}, {a.state}
                       </div>
                     </button>
                   );
@@ -736,20 +630,138 @@ export const AlertPortalPage: React.FC = () => {
             </div>
           </div>
 
-          {/* COLUMN 3: RIGHT SIDEBAR (RECENT EARTHQUAKES & WEATHER OVERVIEW) */}
+          {/* COLUMN 3: RIGHT SIDEBAR (DIRECTIVES, HELPLINES, & RECENT SEISMIC) */}
           <div className="lg:col-span-3 space-y-3">
-            {/* 1. RECENT EARTHQUAKES WIDGET (MATCHING PHOTO) */}
+            {/* 1. SELECTED HAZARD DIRECTIVE CARD */}
+            {selectedAlert ? (
+              <div className="bg-white/95 border border-violet-100 rounded-3xl overflow-hidden shadow-clay p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <AlertOctagon className={`w-4 h-4 ${selectedAlert.severity === 'RED_ALERT' ? 'text-red-600' : 'text-amber-500'}`} />
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-900">
+                      Evacuation Directive
+                    </span>
+                  </div>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full text-white ${
+                    selectedAlert.severity === 'RED_ALERT' ? 'bg-red-600' : 'bg-amber-500'
+                  }`}>
+                    {selectedAlert.severity.replace('_', ' ')}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="font-black text-sm text-slate-950 leading-snug">
+                    {selectedAlert.headline}
+                  </h3>
+                  <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                    {selectedAlert.description}
+                  </p>
+                </div>
+
+                {/* Official Directive instruction */}
+                <div className="bg-gradient-to-br from-violet-50 to-pink-50/50 p-3 rounded-2xl border border-violet-200/80 space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-violet-800 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-violet-600" />
+                    <span>Official Civil Defense Directive:</span>
+                  </span>
+                  <p className="text-[11px] font-semibold text-slate-800 leading-relaxed">
+                    {selectedAlert.instruction || 'Follow local authorities evacuation orders. Proceed immediately to designated emergency shelters.'}
+                  </p>
+                </div>
+
+                {/* Direct Action Buttons */}
+                <div className="space-y-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleActivateDisasterFromAlert(selectedAlert)}
+                    className="w-full py-2.5 px-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl font-black text-xs shadow-3d-badge flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <span>Locate Nearest Relief Camps</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                  <Link
+                    to="/safe-checkin"
+                    className="block w-full py-2 px-3 bg-white hover:bg-slate-50 border border-violet-200 text-violet-800 text-center rounded-xl font-bold text-xs shadow-xs"
+                  >
+                    Mark Myself Safe in This Sector
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white/95 border border-violet-100 rounded-3xl p-5 text-center text-xs text-slate-500 shadow-clay">
+                Select any active hazard warning on the map or list to read immediate civil defense directives.
+              </div>
+            )}
+
+            {/* 2. EMERGENCY HELPLINES & CONTROL ROOMS */}
             <div className="bg-white/95 border border-violet-100 rounded-3xl overflow-hidden shadow-clay">
-              {/* Header Bar */}
+              <div className="bg-gradient-to-r from-violet-800 via-indigo-900 to-purple-800 text-white px-3.5 py-2.5 text-xs font-black uppercase tracking-wider border-b border-pink-500/40 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <PhoneCall className="w-3.5 h-3.5 text-pink-300" />
+                  <span>24/7 Emergency Helplines</span>
+                </div>
+                <span className="text-[9px] bg-pink-500/30 text-pink-200 border border-pink-400/40 px-2 py-0.5 rounded-full font-bold">
+                  TOLL-FREE
+                </span>
+              </div>
+
+              <div className="p-3 space-y-2">
+                <a
+                  href="tel:112"
+                  className="p-2.5 bg-slate-50 hover:bg-violet-50 rounded-2xl border border-violet-100 flex items-center justify-between transition-colors"
+                >
+                  <div>
+                    <span className="text-xs font-black text-slate-900 block">National Emergency Number</span>
+                    <span className="text-[10px] text-slate-500">Police &bull; Fire &bull; Ambulance</span>
+                  </div>
+                  <strong className="text-sm font-black text-pink-600 font-mono">112</strong>
+                </a>
+
+                <a
+                  href="tel:01124363260"
+                  className="p-2.5 bg-slate-50 hover:bg-violet-50 rounded-2xl border border-violet-100 flex items-center justify-between transition-colors"
+                >
+                  <div>
+                    <span className="text-xs font-black text-slate-900 block">NDRF HQ Disaster Control</span>
+                    <span className="text-[10px] text-slate-500">Search &amp; Rescue Deployments</span>
+                  </div>
+                  <strong className="text-xs font-black text-violet-700 font-mono">011-24363260</strong>
+                </a>
+
+                <a
+                  href="tel:1070"
+                  className="p-2.5 bg-slate-50 hover:bg-violet-50 rounded-2xl border border-violet-100 flex items-center justify-between transition-colors"
+                >
+                  <div>
+                    <span className="text-xs font-black text-slate-900 block">State Disaster Authority (SDMA)</span>
+                    <span className="text-[10px] text-slate-500">Regional Emergency Desk</span>
+                  </div>
+                  <strong className="text-xs font-black text-violet-700 font-mono">1070</strong>
+                </a>
+
+                <a
+                  href="tel:1077"
+                  className="p-2.5 bg-slate-50 hover:bg-violet-50 rounded-2xl border border-violet-100 flex items-center justify-between transition-colors"
+                >
+                  <div>
+                    <span className="text-xs font-black text-slate-900 block">District Operations (DEOC)</span>
+                    <span className="text-[10px] text-slate-500">Local Relief Camp Officers</span>
+                  </div>
+                  <strong className="text-xs font-black text-violet-700 font-mono">1077</strong>
+                </a>
+              </div>
+            </div>
+
+            {/* 3. RECENT SEISMIC MONITOR */}
+            <div className="bg-white/95 border border-violet-100 rounded-3xl overflow-hidden shadow-clay">
               <div className="bg-gradient-to-r from-violet-800 via-indigo-900 to-purple-800 text-white px-3.5 py-2.5 text-xs font-black uppercase tracking-wider border-b border-pink-500/40 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-pink-300" />
                   <span>Recent Earthquakes</span>
                 </div>
-                <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full font-bold">USGS / NCS</span>
+                <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full font-bold">NCS / USGS</span>
               </div>
 
-              {/* Grid with Green & Dark Cards matching photo */}
               <div className="p-3 grid grid-cols-2 gap-2.5">
                 {earthquakes.slice(0, 2).map((eq, i) => (
                   <button
@@ -773,169 +785,6 @@ export const AlertPortalPage: React.FC = () => {
                     </div>
                   </button>
                 ))}
-              </div>
-            </div>
-
-            {/* 2. WEATHER OVERVIEW WIDGET (MATCHING PHOTO) */}
-            <div className="bg-white/95 border border-violet-100 rounded-3xl overflow-hidden shadow-clay">
-              {/* Header Bar */}
-              <div className="bg-gradient-to-r from-violet-800 via-indigo-900 to-purple-800 text-white px-3.5 py-2.5 text-xs font-black uppercase tracking-wider border-b border-pink-500/40 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Sun className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Weather Overview</span>
-                </div>
-                <span className="text-[10px] bg-pink-500/30 text-pink-200 border border-pink-400/40 px-2 py-0.5 rounded-full font-bold">OPEN-METEO LIVE</span>
-              </div>
-
-              <div className="p-3.5 space-y-3">
-                {/* Search input with location pin on left and magnifying glass on right */}
-                <form onSubmit={handleSearchLocation} className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
-                    📍
-                  </span>
-                  <input
-                    type="text"
-                    value={locationSearchInput}
-                    onChange={e => setLocationSearchInput(e.target.value)}
-                    placeholder={weatherData?.locationName || 'Search location...'}
-                    className="w-full pl-8 pr-8 py-2 bg-slate-50 border border-violet-200 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 shadow-2xs"
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-violet-600"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-
-                {/* Main Temperature Display matching photo (32°C haze) */}
-                {weatherData && (
-                  <div className="flex items-center justify-between px-1 bg-gradient-to-br from-violet-50 to-pink-50/50 p-2.5 rounded-2xl border border-violet-100">
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl">⛅</div>
-                      <div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tight">
-                          {weatherData.current.tempCelsius}&deg;C
-                        </div>
-                        <div className="text-xs text-violet-700 font-bold capitalize">
-                          {weatherData.current.condition}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="text-right text-[10px] font-mono font-bold text-slate-600 space-y-0.5">
-                      <div>💧 {weatherData.current.humidityPercent}%</div>
-                      <div>💨 {weatherData.current.windKmph} km/h</div>
-                      <div>🧭 {weatherData.current.windDirection}</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Hourly Forecast Section matching photo */}
-                {weatherData && (
-                  <div className="border-t border-slate-100 pt-2">
-                    <div className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                      Hourly Forecast
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
-                      {weatherData.hourly.slice(0, 3).map((h, i) => (
-                        <div
-                          key={i}
-                          className="bg-slate-50 p-2 rounded-xl border border-violet-100"
-                        >
-                          <div className="text-[9px] text-slate-500 font-bold">{h.time}</div>
-                          <div className="text-xs my-0.5">🌧️</div>
-                          <div className="text-xs font-black text-slate-800">
-                            {h.tempCelsius}&deg;
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Daily Forecast Section matching photo */}
-                {weatherData && (
-                  <div className="border-t border-slate-100 pt-2">
-                    <div className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
-                      Daily Forecast
-                    </div>
-                    <div className="flex items-center justify-between text-xs py-1.5 px-2 bg-slate-50 rounded-xl border border-violet-100">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-700 text-[11px]">Today</span>
-                        <span>🌧️</span>
-                      </div>
-                      <div className="font-mono text-right text-[11px]">
-                        <span className="text-slate-800 font-black">{weatherData.daily.today.high}&deg; High</span>
-                        <span className="text-slate-400 mx-1.5">|</span>
-                        <span className="text-slate-500 font-bold">{weatherData.daily.today.low}&deg; Low</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 🎙️ METEOROLOGICAL PODCAST & BROADCAST AUDIO PLAYER */}
-                <div className="bg-gradient-to-br from-violet-950 via-indigo-950 to-purple-950 text-white p-3.5 rounded-2xl border border-pink-500/40 space-y-2.5 shadow-clay">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Headphones className="w-4 h-4 text-pink-400 animate-pulse" />
-                      <span className="text-[11px] font-black uppercase tracking-wider text-pink-300">
-                        LIVE WEATHER PODCAST
-                      </span>
-                    </div>
-                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-pink-500/20 border border-pink-400/40 text-pink-300 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-ping" />
-                      {isPlayingPodcast ? 'ON AIR' : 'SYNTHESIZED'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleTogglePodcast}
-                      className={`flex-1 py-2 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-3d-badge ${
-                        isPlayingPodcast
-                          ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-3d-badge-pink'
-                          : 'bg-gradient-to-r from-amber-400 via-orange-400 to-pink-500 hover:brightness-105 text-slate-950'
-                      }`}
-                    >
-                      {isPlayingPodcast ? (
-                        <>
-                          <Square className="w-3.5 h-3.5 fill-current" />
-                          <span>Stop Broadcast</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>Listen to Live Podcast</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPodcastSpeed(podcastSpeed === 1.0 ? 1.25 : 1.0)}
-                      className="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-slate-200 border border-white/10"
-                    >
-                      {podcastSpeed}x
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowTranscript(!showTranscript)}
-                    className="w-full text-center text-[10px] text-pink-200/90 hover:text-white flex items-center justify-center gap-1 pt-0.5 font-bold"
-                  >
-                    <FileText className="w-3 h-3" />
-                    <span>{showTranscript ? 'Hide Broadcast Script' : 'Read Live Podcast Script'}</span>
-                  </button>
-
-                  {showTranscript && weatherData && (
-                    <div className="p-2.5 rounded-xl bg-black/40 border border-white/10 text-[10px] leading-relaxed text-slate-200 max-h-28 overflow-y-auto">
-                      {weatherData.audioPodcastScript}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
