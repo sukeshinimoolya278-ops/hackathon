@@ -17,4 +17,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-maps': ['leaflet', 'react-leaflet'],
+          'vendor-icons': ['lucide-react'],
+          'vendor-i18n': ['i18next', 'react-i18next'],
+          'vendor-socket': ['socket.io-client'],
+        },
+      },
+    },
+  },
 });
