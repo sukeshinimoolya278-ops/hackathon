@@ -20,6 +20,7 @@ import { CampsMapPage } from './pages/CampsMapPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { FamilyTokenPage } from './pages/FamilyTokenPage';
 import { AlertPortalPage } from './pages/AlertPortalPage';
+import { ReunionIntelligencePage } from './pages/ReunionIntelligencePage';
 
 import { ShieldCheck, Heart, Lock } from 'lucide-react';
 
@@ -69,6 +70,7 @@ export const App: React.FC = () => {
                       />
                     }
                   />
+                  <Route path="/reunion-intelligence" element={<ReunionIntelligencePage />} />
                   <Route path="/dashboard" element={<AdminDashboardPage />} />
                   <Route path="/family-token" element={<FamilyTokenPage />} />
                   <Route path="/alerts" element={<Navigate to="/camps" replace />} />

@@ -18,6 +18,7 @@ import dashboardRoutes from './routes/dashboard';
 import simulationRoutes from './routes/simulation';
 import qrRoutes from './routes/qr';
 import alertRoutes from './routes/alerts';
+import reunionIntelligenceRoutes from './routes/reunionIntelligence';
 import { NotificationService } from './services/notificationService';
 
 const app = express();
@@ -55,6 +56,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/simulation', simulationRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/alerts', alertRoutes);
+app.use('/api/reunion-intelligence', reunionIntelligenceRoutes);
 
 app.get(['/', '/api'], (req: Request, res: Response) => {
   if (req.accepts('html')) {

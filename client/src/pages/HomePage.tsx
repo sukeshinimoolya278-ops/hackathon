@@ -128,6 +128,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
               >
                 <HeartHandshake className="w-5 h-5" />
               </Link>
+
+              {/* Tool 5: Fuchsia Reunion Intelligence Engine Badge */}
+              <Link
+                to="/reunion-intelligence"
+                title="Verified Reunion Intelligence Engine"
+                className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-pink-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-fuchsia-500/25 hover:scale-110 hover:-translate-y-1 transition-all duration-300"
+              >
+                <Sparkles className="w-5 h-5" />
+              </Link>
             </div>
 
             {/* Circular Dial Widget + Search Bar (Matching Reference Layout) */}
@@ -205,6 +214,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenLocationPicker, onOpen
               >
                 <span>👵 Elderly (65+)</span>
                 <span className="bg-amber-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">12</span>
+              </Link>
+              <Link
+                to="/reunion-intelligence"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-violet-100 to-fuchsia-100 hover:from-violet-200 hover:to-fuchsia-200 border border-violet-300 text-violet-900 text-xs font-black transition-all shadow-xs hover:scale-105"
+              >
+                <Sparkles className="w-3 h-3 text-pink-600" />
+                <span>Reunion Engine</span>
+                <span className="bg-violet-700 text-white text-[10px] px-1.5 py-0.2 rounded-full font-black">AI</span>
               </Link>
             </div>
           </div>

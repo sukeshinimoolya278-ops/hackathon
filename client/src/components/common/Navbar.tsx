@@ -33,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenLocationPicker, onOpenMesh
 
   const navLinks = [
     { to: '/', label: 'Home', icon: <Home className="w-3.5 h-3.5" /> },
+    { to: '/reunion-intelligence', label: 'Reunion Intelligence', icon: <Sparkles className="w-3.5 h-3.5 text-fuchsia-500" /> },
     { to: '/search', label: 'Find Loved Ones', icon: <Search className="w-3.5 h-3.5 text-violet-500" /> },
     { to: '/camps', label: 'Relief Camps', icon: <MapPin className="w-3.5 h-3.5 text-pink-500" /> },
     { to: '/safe-checkin', label: 'I Am Safe', icon: <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" /> },
